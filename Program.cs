@@ -8,11 +8,11 @@ namespace LotteryResultsApp
     {
         static void Main(string[] args)
         {
-            string lotteryResultsFilePath = @"\\waldrop\Qwerty\S01E02_WinningNumbers\LotteryResults.txt";
+            string lotteryResultsFilePath = @"\\waldrop\Qwerty\S01E02_WinningNumbers\LotteryResults.txt"; // It was hardcoded!
 
-            if (File.Exists(lotteryResultsFilePath))
+            if (File.Exists(lotteryResultsFilePath)) // Lottery result file can be inaccessible or removed
             {
-                bool isConsoleCommandCorrect = false;
+                bool isConsoleCommandCorrect = false; // In case of user entered something wrong to the console he will be prompted to try again
                 while (!isConsoleCommandCorrect)
                 {
                     Console.WriteLine("Please use \"--top N\" command to determine the top N most common winning numbers.");
@@ -20,7 +20,7 @@ namespace LotteryResultsApp
                     string userInput = Console.ReadLine();
                     var isTopNumber = int.TryParse(string.Join("", userInput.ToCharArray().Where(Char.IsDigit)), out int topNWinningNumbers);
 
-                    if (userInput.Contains("--top " + topNWinningNumbers) && topNWinningNumbers > 0 && topNWinningNumbers <= 50)
+                    if (userInput.Contains("--top " + topNWinningNumbers) && topNWinningNumbers > 0 && topNWinningNumbers <= 50) // Need to check if user's input is in correct format
                     {
                         isConsoleCommandCorrect = true;
 

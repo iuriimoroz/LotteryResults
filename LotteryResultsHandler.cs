@@ -10,7 +10,7 @@ namespace LotteryResultsApp
         public static double processingProgressInPerCents = 0;
         public static IEnumerable<int> FileWithResultsReader(string lotteryResultsFilePath)
         {
-
+            // Variables below needed for output lottery results file processing progress
             int percentCounter = 0;
             double fileSize = new FileInfo(lotteryResultsFilePath).Length;
             double processedLinesSize = 262; // First line size is 262 bytes
@@ -33,6 +33,7 @@ namespace LotteryResultsApp
                 yield return Convert.ToInt32(tempLine[10]);
                 yield return Convert.ToInt32(tempLine[11]);
 
+                // Calculation and printing out to the console current progress
                 processedLinesSize = processedLinesSize + lineSize;
                 processingProgressInPerCents = (processedLinesSize / fileSize) * 100;
                 if ((int)processingProgressInPerCents == percentCounter && percentCounter <= 100)
@@ -43,9 +44,9 @@ namespace LotteryResultsApp
             }
         }
 
+        // Method which prints file processing progress to the console
         public static void Progress()
         {
-
             Console.Clear();
             if ((int)processingProgressInPerCents < 100)
             {
@@ -53,7 +54,7 @@ namespace LotteryResultsApp
             }
             else
             {
-                Console.WriteLine("Final stage.Please wait a moment...");
+                Console.WriteLine("Final stage.Please wait a moment..."); // When progress reaches 100 % some time needed to output the results
             }
 
         }
