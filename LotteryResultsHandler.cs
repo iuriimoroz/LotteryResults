@@ -52,9 +52,11 @@ namespace LotteryResultsApp
             {
                 Console.WriteLine("Current lottery results file processing progress is: " + (int)processingProgressInPerCents + "%");
             }
+            // I added this piece of code because there is some inconsistencies between total line sizes and total file size
+            // When progress reaches 100% some lines still not processed and some time needed to process these lines
             else
             {
-                Console.WriteLine("Final stage.Please wait a moment..."); // When progress reaches 100 % some time needed to output the results
+                Console.WriteLine("Final stage.Please wait a moment..."); // I added this piece of code because there is some inconsistencies between total line sizes and total file size
             }
 
         }
