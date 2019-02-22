@@ -1,6 +1,5 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace LotteryResultsApp
 {
@@ -10,8 +9,8 @@ namespace LotteryResultsApp
         // The algoritm taken from https://www.csharpstar.com/csharp-find-the-most-frequent-element-in-an-array/
         public static List<int> HowMachNumberOccurs(IEnumerable<int> source, int topNValue)
         {
-            // Below numbers added to a hash table where key is a number and value its occurence in the file with lottery results
-            Hashtable numberOccurence = new Hashtable();
+            // Below numbers added to a dictionary where key is a number and value its occurence value in the file with lottery results
+            Dictionary<int, int> numberOccurence = new Dictionary<int, int>();
 
             foreach (int num in source)
             {
@@ -28,29 +27,14 @@ namespace LotteryResultsApp
                 }
             }
 
+            // Sorting dictionary values by most common occurence of the key
+            var sortedDictionary = from entry in numberOccurence orderby entry.Value descending select entry;
 
-            // Adding key values (lottery numbers) from the hash table above which have biggest values (number occurence in the lottery results file)
-            List<int> numberOccurenceHashTableValues = new List<int>();
-            foreach (int value in numberOccurence.Values)
+            // Top N numbers will be added to the List<T> below and returned as a result of the method
+            List<int> topN = new List<int>();
+            foreach (var item in sortedDictionary.Take(topNValue))
             {
-                numberOccurenceHashTableValues.Add(value);
-            }
-            // Values sorted and reversed - after that the top N can be taken and returned
-            numberOccurenceHashTableValues.Sort();
-            numberOccurenceHashTableValues.Reverse();
-
-            List<int> topN = new List<int>(); // here will be written the top N numbers
-            // Algoritm which finds corresponding key from the hash table for the the top N numbers (values)
-            for (int i = 0; i < topNValue; i++)
-            {
-                foreach (int key in numberOccurence.Keys)
-                {
-                    if ((int)numberOccurence[key] == numberOccurenceHashTableValues[i])
-                    {
-                        topN.Add(key);
-                    }
-                }
-
+                topN.Add(item.Key);
             }
 
             return topN;
