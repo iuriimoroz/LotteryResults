@@ -17,7 +17,6 @@ namespace LotteryResultsApp
 
             foreach (var line in File.ReadLines(lotteryResultsFilePath).Skip(1))
             {
-                processedLinesSize = processedLinesSize + line.Length * sizeof(Char);
                 var tempLine = line.Split('\t');
 
                 yield return Convert.ToInt32(tempLine[2]);
@@ -30,6 +29,8 @@ namespace LotteryResultsApp
                 yield return Convert.ToInt32(tempLine[9]);
                 yield return Convert.ToInt32(tempLine[10]);
                 yield return Convert.ToInt32(tempLine[11]);
+
+                processedLinesSize = processedLinesSize + line.Length;
 
                 // Calculation and printing out to the console current progress
                 processingProgressInPerCents = (processedLinesSize / fileSize) * 100;
@@ -45,18 +46,10 @@ namespace LotteryResultsApp
         public static void Progress()
         {
             Console.Clear();
-            if ((int)processingProgressInPerCents < 100)
+            if ((int)processingProgressInPerCents <= 100)
             {
                 Console.WriteLine("Current lottery results file processing progress is: " + (int)processingProgressInPerCents + "%");
             }
-            // I added this piece of code below because there is some inconsistencies between total lines size in bytes and total file size
-            // When progress reaches 100% some lines still not processed and some time needed to process these lines
-            // Tried different approaches e.g. count all lines first, but this is too slow for big files
-            else
-            {
-                Console.WriteLine("Final stage. Please wait a moment...");
-            }
-
         }
 
     }
