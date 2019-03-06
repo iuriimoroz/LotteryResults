@@ -19,6 +19,7 @@ namespace LotteryResultsApp
             {
                 var tempLine = line.Split('\t');
 
+                // First two fields are date and district_number so the will be skipped from processing of winning numbers below
                 yield return Convert.ToInt32(tempLine[2]);
                 yield return Convert.ToInt32(tempLine[3]);
                 yield return Convert.ToInt32(tempLine[4]);
