@@ -1,31 +1,48 @@
 using System;
 using System.IO;
-using System.Linq;
+using Mono.Options;
 
 namespace LotteryResultsApp
 {
     class Program
     {
-        // Method which derermines that --top N command is in correct format and numbers are in the correct range
-        public static bool IsTopNInTheCorrectFormat(string topN)
-        {
-            var isTopNumber = int.TryParse(string.Join("", topN.ToCharArray().Where(char.IsDigit)), out int topNWinningNumbers);
-            if (topN.Contains("--top " + topNWinningNumbers) && topNWinningNumbers > 0 && topNWinningNumbers <= 50)
-            {
-                return true;
-            }
-                return false;
-        }
         static void Main(string[] args)
         {
-            /*
-             Currently the program takes parameters from the command lines arguments.
-             If you wish to manually input parameters to the console -  comment out the code under the first region block and uncomment the second one, build and run the program.
-            */
-            #region
-            int.TryParse(string.Join("", args[1].ToCharArray().Where(Char.IsDigit)), out int topNWinningNumbers);
-            var lotteryResultsFilePath = args[0];
-            if (File.Exists(lotteryResultsFilePath) && IsTopNInTheCorrectFormat(args[1])) // Still missing check that lottery results file is in correct format
+            // These variables will be set when the command line is parsed
+            int topNWinningNumbers = 0;
+            bool isTopNWinningNumbersInteger = false;
+            string lotteryResultsFilePath = "";
+            bool showHelp = false;
+
+            // These are the available options
+            var options = new OptionSet();
+            options.Add("path=", "Lottery results file path.",
+              v => lotteryResultsFilePath = v);
+            options.Add("top=", "Top N winning numbers to be returned.",
+              v => isTopNWinningNumbersInteger = int.TryParse(v, out topNWinningNumbers));
+            options.Add("h|help", "Show this message and exit.",
+              v => showHelp = v != null);
+
+            // In case of options can not be parsed exeption message will be shown
+            try
+            {
+                options.Parse(args);
+            }
+            catch (OptionException e)
+            {
+                Console.Write("LotteryResultsApp: ");
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Try `LotteryResultsApp --help' for more information.");
+                return;
+            }
+            // If user wants to see the help - it will be shown for him
+            if (showHelp)
+            {
+                ShowHelp(options);
+                return;
+            }
+
+            if (args.Length >= 2 && File.Exists(lotteryResultsFilePath) && topNWinningNumbers > 0 && topNWinningNumbers <= 50) // If everything is correct - file processing starts
             {
                 var result = LotteryResultsHandler.FileWithResultsReader(lotteryResultsFilePath); // Calling the method which reads LotteryResults file line by line and displays processing progress
                 var howMatch = MostCommonNumbers.HowMachNumberOccurs(result, topNWinningNumbers); // Calling the method which calculates occurance of each winning number and returns --top N most common numbers
@@ -37,65 +54,34 @@ namespace LotteryResultsApp
                     Console.WriteLine(number + " ");
                 }
             }
-            else if (!IsTopNInTheCorrectFormat(args[1]))
+            else if (args.Length < 2) // This block is executed when user missed some argument/arguments
             {
-                Console.WriteLine($"Now the \"--top N\" parameter is \"{args[1]}\". The N parameter should be between 1 and 50 and written in the following format \"--top N\". Fix it, restart the program and try again...");
+                Console.WriteLine("You did not provide correct ammount of arguments. Try `LotteryResultsApp --help' for more information.");
             }
-            else
+            else if (!File.Exists(lotteryResultsFilePath)) // This block is executed when user provided wrong file path
             {
-                Console.WriteLine($"Unfortunatly the programm was unable to find a source file with lottery results following the path: \"{lotteryResultsFilePath}\"");
-                Console.WriteLine("Please double check the path, restart the program and try again...");
+                Console.WriteLine($"Unfortunately the program did not find the file following the path {lotteryResultsFilePath}. Please double check the path.");
+                Console.WriteLine("Try `LotteryResultsApp --help' for more information.");
+                Console.WriteLine("Restart the program and try again...");
             }
-            #endregion
+            else // This block is executed when user provided out of range winning number
+            {
+                Console.WriteLine("The N parameter should be between 1 and 50. Try `LotteryResultsApp --help' for more information.");
+            }
 
-            #region
-            //string lotteryResultsFilePath = null;
-            //bool isLotteryResultsFileExists = false;
-
-            //while (!isLotteryResultsFileExists) // User will be promted to try again in case of wrong file path provided to the console
-            //{
-            //    Console.WriteLine("Enter the path to the file with lottery results and press [Enter] button on your keyboard:");
-            //    lotteryResultsFilePath = Console.ReadLine();
-            //    isLotteryResultsFileExists = File.Exists(lotteryResultsFilePath);
-
-            //    if (!isLotteryResultsFileExists)
-            //    {
-            //        Console.WriteLine($"Unfortunatly the programm was unable to find a source file with lottery results following the path: \"{lotteryResultsFilePath}\"");
-            //        Console.WriteLine("Please double check the path and try again...");
-            //    }
-            //}
-
-            //bool isConsoleCommandCorrect = false; // In case of user entered something wrong to the console he will be prompted to try again
-            //while (!isConsoleCommandCorrect)
-            //{
-            //    Console.WriteLine("Please use \"--top N\" command to determine the top N most common winning numbers.");
-            //    Console.WriteLine("The N parameter should be between 1 and 50:");
-            //    string userInput = Console.ReadLine();
-            //    var isTopNumber = int.TryParse(string.Join("", userInput.ToCharArray().Where(Char.IsDigit)), out int topNWinningNumbers);
-
-            //    if (userInput.Contains("--top " + topNWinningNumbers) && topNWinningNumbers > 0 && topNWinningNumbers <= 50) // Need to check if user's input is in correct format
-            //    {
-            //        isConsoleCommandCorrect = true;
-
-            //        var result = LotteryResultsHandler.FileWithResultsReader(lotteryResultsFilePath); // Calling the method which reads LotteryResults file line by line and displays processing progress
-            //        var howMatch = MostCommonNumbers.HowMachNumberOccurs(result, topNWinningNumbers); // Calling the method which calculates occurance of each winning number and returns --top N most common numbers
-            //        Console.Clear();
-
-            //        Console.WriteLine($"Top {topNWinningNumbers} most common winning numbers printed below:");
-            //        foreach (int number in howMatch)
-            //        {
-            //            Console.WriteLine(number + " ");
-            //        }
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine("You did not provide correct command to the console. Try again...");
-            //    }
-            //}
-            #endregion
-
-            Console.WriteLine("Press any key to close the screen...");
+            Console.WriteLine("Press any button on your keyboard to exit the application...");
             Console.ReadKey();
+        }
+
+        // Method which displays command line options help
+        static void ShowHelp(OptionSet options)
+        {
+            Console.WriteLine("Usage: The program determines the top N most common winning numbers. The path to lottery results file and top N winning numbers should be provided as command line arguments. E.g.:");
+            Console.WriteLine(@">C:\AppFolder\LotteryResultsApp.exe --path=C:\WinningNumbers\LotteryResults.txt --top=5");
+            Console.WriteLine("As a result of the program execution (after pressing Enter button) you will see the top N most common winning numbers in the console output.");
+            Console.WriteLine();
+            Console.WriteLine("Options:");
+            options.WriteOptionDescriptions(Console.Out);
         }
     }
 }
